@@ -190,6 +190,33 @@
 	\end{block}
 \end{frame}
 
+\begin{frame}{「LibreOJ NOI Round \#2」签到游戏}
+	\begin{block}{description}
+		有一列数$\{A_i\}_{i=1}^{n}$，这些数你不知道，你需要猜它们的值。
+
+		又有一列数$\{B_i\}_{i=1}^{n}$，这些数你知道。你可以选择支付$\gcd_{i=l}^{r}B_i$的代价，得到$\sum_{i=l}^{r}A_i$的值。
+
+		\begin{itemize}
+			\item 求至少需要支付多少代价，能保证准确猜出每个$A_i$？
+			\item 有$q$次动态的询问，每次询问会修改$\{B_i\}$的一位，并求上一问的答案。
+		\end{itemize}
+	\end{block}
+	\begin{block}{constraint}
+		$n, q \le 10^5, 1 \le B_i \le 10^9.$
+	\end{block}
+\end{frame}
+\begin{frame}{「LibreOJ NOI Round \#2」签到游戏}
+	\begin{block}{solution}
+		问题等价于有一张$n + 1$个点的图$G$，其中点$i, j(0 \le i < j \le n)$之间的边权是$\gcd_{k=i+1}^{j} B_k$，求$G$的最小生成树边权和。\pause\\
+		
+		验证：$G$存在一棵最小生成树$T$，包含边$(0, n)$，且对于任意$i = 1, 2, \cdots, n-1$，要么包含边$(0, i)$，要么包含边$(i, n)$。进一步地，存在分界点$1 \le x \le n$，$\forall y < x, (y, n) \in T, \forall y \ge x, (0, y) \in T.$\pause\\
+
+		二分分界点$x$即可。使用线段树维护$\{B_i\}$，在线段树上二分即可求出分界点。之后需要实现求$\sum_{i=x}^{n}\gcd_{j=1}^{i}B_j$，注意到随着$i$的增加$\gcd_{j=1}^{i}B_j$只会变化至多$\log B_1$次，在线段树上找到这$\log B_1$次变化的位置即可。
+
+	\end{block}
+\end{frame}
+
+
 \section{最短路}
 \begin{frame}{最短路}
 	BFS：解决所有边权都相同的问题，复杂度$O(m)$。\\
@@ -549,6 +576,26 @@
 		把行连续段看成二分图一侧的点，列连续段看成二分图另一侧的点，空地看成连接两者的边，便转化成了二分图最大匹配问题。
 	\end{block}
 \end{frame}
+\begin{frame}{二分图的最大独立集和最小覆盖集}
+
+	$|$最小覆盖集$|$ $\ge$ $|$最大匹配$|$。如若不然，匹配边无法覆盖。
+
+	通过构造证明上式取等：先求出一组最大匹配，从$V_1$中的所有未匹配点出发 DFS，从左往右走非匹配边，从右往左走匹配边。取$V_1$中的未访问点和$V_2$中的已访问点构成集合$S$。\pause
+
+	\begin{itemize}
+		\item $|S| = $ $|$最大匹配$|$。因为$S$中的点一定都在匹配中，且对于每条匹配边，都有恰好一个点在$S$中。
+		\item $S$是覆盖集。即不存在一条边$(x \in V_1, y \in V_2)$，$x$已访问且$y$未访问。
+		\begin{itemize}
+			\item 这条边是匹配边。$x$是匹配点，所以不会从$x$出发 DFS，$x$被访问依赖于其匹配点$y$被访问，矛盾；
+			\item 这条边是非匹配边。此时访问到$x$时也会沿这条边访问到$y$，矛盾。
+		\end{itemize}
+	\end{itemize}
+
+	于是构造出了大小等于最大匹配的覆盖集。\pause
+
+	可以验证任意独立集的补集都是覆盖集，所以最大独立集可以规约到最小覆盖集。
+
+\end{frame}
 \subsection{KM算法}
 \begin{frame}{KM算法}
 	$G = \langle V_1, V_2, w: V_1 \times V_2 \to \mathbb R \rangle$称为带权二分图。不妨假设$|V_1| = |V_2|$，如何求匹配$\sigma: V_1 \to V_2$来最大化$\sum_{v \in V_1}w(v, \sigma(v))$？\\
@@ -731,6 +778,11 @@
 	参考《网络流专题选讲》。
 \end{frame}
 \section{习题课}
+\begin{frame}
+	\begin{center}
+		{\huge 习题课}
+	\end{center}
+\end{frame}
 \begin{frame}{Gym102900K. Traveling Merchant}
 	\begin{block}{description}
 		有一张$n$个点$m$条边的无向图。每个点标有黑或白的颜色，每当离开一个点时，这个点的颜色就会发生翻转。
@@ -751,7 +803,18 @@
 		$2 \le n \le 10^5, n - 1 \le m \le 2 \times 10^5.$
 	\end{block}
 \end{frame}
+\begin{frame}{Gym102992M. Harmony in Harmony}
+	\begin{block}{description}
+		有一片面积为$1$的土地$D$。定义$D$的一个\obj{$n$等分}是一个集合族$\{A_i\}_{i=1}^{n}$，满足$\bigcup_{i=1}^{n}A_i = D$，且$\forall i \neq j, A_i \cap A_j = \varnothing$，同时每个$A_i$的面积\footnote{\tiny 感性理解一下什么是“面积”即可，严谨定义与解题关系不大。}均为$\frac 1n$。
 
+		求$$\min_{\{S_i\}, \{T_i\}} \max_{\sigma \in \mathcal S_n} \min_{i=1}^{n} \mathrm{Area}(S_i \cap T_{\sigma_i})$$
+
+		{\tiny 用自然语言表述一下：先Alice给出两个$n$等分，然后Bob给出这两个集合族之间的一个一一对应，定义评价指标值是对应的集合交(表示两块土地交的面积)的最小值，Alice希望这个值尽量小，Bob希望尽量大，求最终值是多少。}
+	\end{block}
+	\begin{block}{constraint}
+		$n \le 500.$
+	\end{block}
+\end{frame}
 \section{讲完啦}
 \begin{frame}
 	\begin{center}

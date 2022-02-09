@@ -89,6 +89,7 @@
 \begin{itemize}
 	\item 用$\Sigma$表示字符集，$\sigma = |\Sigma|$表示字符集大小，一般默认是常数。
 	\item 用$\Sigma^n$表示字符集$\Sigma$下所有长度为$n$的串构成的集合。
+	\item 用$\Sigma^*$表示$\bigcup_{n \ge 0}\Sigma^n$。
 	\item 用$\epsilon$表示空串。注意区分$\{\epsilon\}$和$\varnothing$。
 	\item 若无特殊说明，认为字符串下标从$1$开始\footnote{\tiny 这是因为我不喜欢出现$-1$这样的记号。理解万岁。}。
 	\item 用$S+T$或者$ST$表示字符串$S$与字符串$T$的拼接。
@@ -318,99 +319,9 @@ for (int i = 2; i <= n; ++i) {
 
 \section{KMP}
 \begin{frame}{KMP}
-	KMP算法解决的是字符串匹配中单串匹配单串的问题。具体的，这个问题可以被描述为：给出一个长度为$n$的文本串$S$和一个长度为$m$的模式串$T$，问$T$在$S$中出现了多少次，分别在哪些位置出现了。\\
-	
-	朴素做法复杂度$O(nm)$：枚举$S$的开头位置，$O(m)$遍历比较两串。\\
-	
-	在一次比较失败后，我们放弃了已比较部分的全部信息，直接选取$S$的下一个位置继续匹配。这在一定程度上造成了浪费。
-	
-\end{frame}
-\begin{frame}{KMP}
-	举个例子，假设文本串$S=abbaabbbabaa$，模式串$T=abbaaba$，从$S$的第一位开始匹配：
-	\pause\\
-	
-	{\color{red} $abbaab$}$bbabaa$
-	
-	{\color{blue} $abbaab$}$a$
-	\pause\\
-	
-	匹配了$6$位，在第$7$位上失配了。按照朴素做法，我们会直接放弃“已匹配$6$位”的信息，转而从$S$的第二位开始匹配。这其中浪费掉了很多已知的信息，造成了复杂度过高，由此，KMP算法应运而生。
-\end{frame}
-\begin{frame}{$nxt$数组}
-	KMP的本质是对每一个$i$求出最大的$j<i$满足$S_{i-j+1...i}=pre_j$（换言之即最长的相同前后缀），记之为$nxt_i$。\\
-	
-	举个例子，对于字符串$aababaabaccc$来说，它的前缀$aababaaba$的相同前后缀有$aaba$、$a$以及空串，所以它对应的$nxt$就等于$4$。
-	
-\end{frame}
-\begin{frame}[fragile]{$nxt$数组的构造}
-	在解决前面说过的字符串匹配问题时，需要先对$T$串构造$nxt$数组。$nxt$数组的构造方式是增量构造，即在已经得到$nxt_1...nxt_{i-1}$的情况下，求$nxt_i$。
-	\pause
-	
-	如果$nxt_{i-1}$后一个字符与第$i$个字符相同，即$T_{nxt_{i-1}+1}=T_i$，那么$nxt_i=nxt_{i-1}+1$。
-	\pause
-	
-	否则我们需要找到对于$i-1$而言第二长的相同前后缀，这个实际上是$nxt_{nxt_{i-1}}$，同理第三长的是$nxt_{nxt_{nxt_{i-1}}}$，以此类推。
-	\pause
-	
-	我们按照长度顺序依次判断$i-1$的某个相同前后缀的下一位是否与$T_i$相同，注意可能并不存在这样的前后缀，那么$nxt_i$将会等于$0$。\pause 代码差不多长这样：
-	
-\begin{minted}{c++}
-for (int i = 2, j = 0; i <= m; ++i) {
-    while (j && T[j+1] != T[i])
-        j = nxt[j];
-    if (T[j+1] == T[i])
-        ++j;
-    nxt[i] = j;
-}
-\end{minted}
-	
-\end{frame}
-\begin{frame}[fragile]{解决原问题}
-	在使用$nxt$数组解决匹配问题前，先考虑一下我们可以怎样优化匹配的复杂度？还是用前面的例子：
-	
-	{\color{red} $abbaab$}$bbabaa$
-	
-	{\color{blue} $abbaab$}$a$
-	
-	\pause
-	
-	对于已经匹配的$6$位，我们考虑：$S$的前$6$个起始位置中，哪些还可能模式串的匹配？可以断言只有第$5$位还有可能，这是因为串$abbaab$的相同前后缀只有$ab$和空串。
-	\pause
-	
-	代码和构造$nxt$数组差不多：
-	
-	\begin{minted}{c++}
-for (int i = 1, j = 0; i <= n; ++i) {
-    while (j && T[j+1] != S[i])
-        j = nxt[j];
-    if (T[j+1] == S[i])
-        ++j;
-    if (j == m) {
-        //match success
-    }
-}
-	\end{minted}
-	
-\end{frame}
+	求出$nxt_i$表示最大的$j < i$满足$S_{[1, j]} = S_{[i-j+1, i]}$，即$S_{[1, i]}$的最长 border。\\
 
-\begin{frame}[fragile]{KMP的时间复杂度}
-	前面说了朴素做法的时间复杂度是$O(nm)$，那么KMP算法又如何呢？
-	\pause
-	
-	\begin{minted}{c++}
-for (int i = 2, j = 0; i <= m; ++i) {
-    while (j && T[j+1] != T[i])
-        j = nxt[j];
-    if (T[j+1] == T[i])
-        ++j;
-    nxt[i] = j;
-}
-	\end{minted}
-	
-	考虑构建$nxt$数组的部分，注意观察\texttt{j}指针的变化，可以发现至多只有$m$次\texttt{++j}操作，而每次\texttt{j = nxt[j]}都一定会使\texttt{j}变小，因此\texttt{for}循环中的\texttt{while}语句在整个算法流程中只会被执行不超过$m$次。
-	\pause\\
-	
-	因此构造$nxt$数组的时间复杂度为$O(m)$，类似地可以分析出匹配时的时间复杂度为$O(n)$，因此算法的总时间复杂度为$O(n+m)$。
+	注意 KMP 的时间复杂度是\obj{均摊}的。
 \end{frame}
 \begin{frame}{KMP自动机}
 	在KMP求$nxt$的基础上，额外求出$trans_{i,j}$表示从$i$位置开始往后匹配一个$j$字符后会转移到什么状态，可以实现真正严格$O(1)$而非均摊$O(1)$的转移。但需要注意预处理$trans$的复杂度是$O(m\sigma)$的。
@@ -934,6 +845,11 @@ void extend(char c) {
 	一些问题需要利用到这个性质，比如 \href{http://codeforces.com/problemset/problem/932/G}{Codeforces 932G Palindrome Partition}，\href{https://loj.ac/p/6070}{区间本质不同回文子串计数} 等。
 \end{frame}
 \section{习题课}
+\begin{frame}
+	\begin{center}
+		{\huge 习题课}
+	\end{center}
+\end{frame}
 \begin{frame}{Gym103447A. So Many Lucky Strings}
 	\begin{block}{description}
 		有一列小写字母字符串$s_1, s_2, \cdots, s_n$，求有多少个\obj{子序列}$\{i_1, i_2, \cdots, i_k\} \subseteq [1, n]$，满足$s_{i_1} + s_{i_2} + \cdots + s_{i_k}$是回文串。
@@ -953,6 +869,18 @@ void extend(char c) {
 	\end{block}
 	\begin{block}{constraint}
 		$\sum |t_i| \le 10^5, m \le 3 \times 10^5, |S| \le 3 \times 10^5, |\Sigma| = 10.$
+	\end{block}
+\end{frame}
+\begin{frame}{2020ICPC Kunming F. Generating Strings\footnote{\tiny Codeforces Gym 里没找到，给个\href{https://ac.nowcoder.com/acm/contest/12548/F}{牛客}链接吧。}}
+	\begin{block}{description}
+		设字符集$\Sigma = \{\texttt{a}, \cdots, \texttt{z}\}$。给出$S \in \Sigma^*$，求$$\sum_{T \in \Sigma^n} \sum_{\substack{1 \le l \le r \le n \\ T_{[l, r]} \mathrm{\ is\ palindrome}}} \mathrm{OCC}_S(T_{[l, r]})$$
+
+		即枚举所有长为$n$的串$T$，求$T$的每个回文子串在$S$中的出现次数之和。
+
+		出题人觉得这个题太简单了，就加了点动态修改。有 $m$ 次修改操作，要么是在$S$的末尾添加一个字符，要么是删除$S$的末位字符。你需要在一开始和每次修改后回答原问题。
+	\end{block}
+	\begin{block}{constraint}
+		$1 \le n, m, |S| \le 5 \times 10^5.$
 	\end{block}
 \end{frame}
 \section{讲完了}
