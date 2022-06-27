@@ -1,0 +1,407 @@
+\documentclass{beamer}
+
+\usepackage[UTF8,noindent]{ctexcap}
+\usepackage{color}%引入颜色
+\usetheme{Singapore}%使用Singapore主题
+\usepackage{graphicx}%引入插图
+\usepackage{ulem}%删除线
+\usepackage{tikz}
+\usepackage{verbatim}
+\usefonttheme[onlymath]{serif}
+\usepackage{minted}%[fragile]
+\useoutertheme{infolines}
+\usepackage[orientation=landscape,size=custom,width=16,height=9,scale=0.5,debug]{beamerposter}
+
+\title{数据结构}
+\author{长郡中学\ 周书予}
+\date{\today}
+\begin{document}\small
+	
+%\usebackgroundtemplate{\tikz\node[inner sep=0pt,opacity=0.3]{\includegraphics[width=14cm,height=9.6cm]{Thosaka.png}};}
+	\begin{frame}
+	\titlepage
+		\begin{center}
+		\includegraphics[width=2.0cm]{cj.jpg}
+		$\ \ \ \ \ $
+		\includegraphics[width=2.0cm]{zsy.png}
+		\end{center}
+	\end{frame}
+	\section{栈、队列、链表}
+	\begin{frame}{栈、队列、链表}
+		都是经典的线性数据结构所以就放在一起讲了。
+		
+		基本概念相信大家都懂。接下来会通过几道例题来介绍一些常见用法。
+	\end{frame}
+	\begin{frame}{全$0$子矩阵}
+		\begin{block}{description}
+			给出一个$n\times m$的$01$矩阵，求全$0$的矩阵的面积最大值和这样的矩阵的数量。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n \times m \le 10^7.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			对每个位置求出向上连续的$0$的数量，枚举矩阵的下边界，单调栈维护即可。
+		\end{block}
+	\end{frame}
+	\begin{frame}{多重背包问题}
+		\begin{block}{description}
+			有$n$种物品，第$i$种物品有$t_i$件，单件重量$w_i$价值$c_i$，求重量分别为$1....m$的背包可装下的最大物品价值。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n \times m \le 10^7, 1 \le t_i, w_i \le m, 1 \le c_i \le 10^9.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			在加入一种物品时，按照模$w_i$分类后，可以转移的部分是一段长度为$t_i$的区间，类似滑动窗口求最大值的问题，可以使用单调队列进行维护。
+		\end{block}
+	\end{frame}
+	\begin{frame}{bzoj4548 小奇的糖果}
+		\begin{block}{description}
+			平面上有$n$颗糖果，每颗糖果都有一种颜色，小奇想在平面上画一条水平的线段，并拾起它上方或下方的所有糖果。求出最多能够拾起多少糖果，使拾起的糖果不包含所有颜色。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n \le 10^6.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			强制某一种颜色不被包含，从高到低枚举这种颜色的所有点，用链表维护，可以得到一些可选择的矩形区域，二维数点即可。
+		\end{block}
+	\end{frame}
+	\section{并查集}
+	\begin{frame}{并查集}
+			用于维护连通性。\\
+			
+			按大小合并后任意一个点到并查集根的距离均是$O(\log n)$。\\
+			
+			同时使用按大小合并与路径压缩，时间复杂度为$O(n\alpha(n))$。\\
+			
+			可以实现$O(n\log n)$的可撤销并查集和$O(n\log^2n)$的可持久化并查集。
+	\end{frame}
+	\begin{frame}{例题}
+		\begin{block}{description}
+			有一个长度为$n$的序列，初始时全是$0$。
+			
+			有$m$次操作，每次操作给出$l,r,k,b$，将区间$[l,r]$内的所有位置$i$对$ki+b$取$\max$。
+			
+			要求在$m$次操作后输出最终的序列。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n, m \le 10^7, k \in\{1,-1\}, -10^7 \le b \le 10^7.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			$k=1$与$k=-1$的操作显然可以分别处理。
+			
+			对于$k$相同的，按照$b$降序排序后变为区间赋值操作（永久赋值），每次暴力遍历整个区间，用并查集找下一个未被赋值的位置。
+		\end{block}
+	\end{frame}
+	\section{堆}
+	\begin{frame}{堆}
+		支持插入、求最大值、删除最大值的数据结构。\\
+		
+		一般都写\texttt{std::priority\_queue}。\\
+		
+		用两个只支持基本操作的堆可以实现删除任意元素。
+	\end{frame}
+	\begin{frame}{牛客练习赛48E 	小w的矩阵前k大元素(subproblem)}
+		\begin{block}{description}
+			给一个长度为$n$的序列$\{a_i\}$和一个长度为$m$的序列$\{b_i\}$，定义一个$n \times m$的矩阵$C$满足$c_{i,j}=a_i+b_j$，求这个矩阵内的前$k$大元素之和。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n,m \le 10^5, 1 \le k \le \min(n\times m, 10^5).$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			对$\{b_i\}$降序排序。把每个$a_i$匹配$b_1$丢到大根堆中，每次取出最大值后，把匹配的$b_j$换成$b_{j+1}$继续丢到堆中，重复该过程$k$次即可求出前$k$大。
+			
+			
+		\end{block}
+	\end{frame}
+	\section{倍增与ST表}
+	\begin{frame}{倍增与ST表}
+		$f_{i,j}$表示从$i$位置出发连续$2^j$长度的某些信息。\\
+		
+		预处理时间复杂度$O(n\log n)$。\\
+		
+		查询依据信息是否可重复计算可做到$O(1)$或$O(\log n)$。
+	\end{frame}
+	\begin{frame}{codeforces1142B Lynyrd Skynyrd}
+		\begin{block}{description}
+			给出一个$n$阶排列$p$和一个长度为$m$的序列$\{a_i\}$，$q$次询问序列的某段区间$[l,r]$内是否包含排列$p$的某个循环表示作为子序列。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n, m, q \le 2\times 10^5, 1 \le a_i \le n.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			对于序列的每个位置，假设这个位置上的数是$p_i$，找出它后面第一个$p_{i+1}$的出现位置（定义$p_{n+1}=p_1$），记之为$nxt_i$。这样从每个$i$向后连续跳$n-1$次$nxt_i$后即可找到一个$p$的循环表示。
+			
+			对每个位置求出它往后跳$n-1$次$nxt_i$会跳到哪里，记为$ans_i$，这个可以使用倍增实现。询问时只需要查询区间$[l,r]$内$ans_i$的最小值是否小于等于$r$，用ST表维护。
+		\end{block}
+	\end{frame}
+	\section{树状数组}
+	\begin{frame}{树状数组}
+		树状数组$c_i$维护原数组$[i-\mathrm{lowbit}(i)+1,i]$内的信息，其中$\mathrm{lowbit}(x)$表示$x$在二进制下的最低位位值。\\
+		
+		支持$O(\log n)$单点修改，维护前缀信息。\\
+		
+		注意到树状数组只能维护前缀信息，因此不可减（如求最小值）的区间信息是无法使用树状数组维护的。
+		
+	\end{frame}
+	\begin{frame}{树状数组常用技巧}
+		\begin{block}{树状数组上二分}
+			值域树状数组支持$O(\log n)$二分求第$k$大，只需要按二进制位从高到低依次确定即可。
+		\end{block}
+		\pause
+		\begin{block}{区间加区间求和}
+			设$d_i=a_i-a_{i-1}$。
+			
+			一次区间修改$[l,r]$全部加$v$相当于$d_l+=v,d_{r+1}-=v$。
+			
+			区间求和转前缀求和$\sum_{i=1}^r a_i=\sum_{i=1}^r\sum_{j=1}^id_i=\sum_{j=1}^rd_j\times(r-j+1)$。
+			
+			开两个树状数组分别维护$\sum d_j$与$\sum d_j\times j$即可。
+		\end{block}
+	\end{frame}
+	\begin{frame}{例题}
+		\begin{block}{description}
+			一棵$n$个节点的树，$q$次询问只保留树上编号在$[l_i,r_i]$内的点时，树会被分成多少个连通块。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n, q \le 2\times10^5.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			对于森林而言，连通块数等于点数减边数，因此只需要求有多少条边的两端点都在$[l_i,r_i]$内即可。
+			
+			一种可离线区间询问的套路是，从小到大枚举询问的右端点$r$，维护所有左端点的答案，需要考虑的是右端点移动对左端点答案的影响。当右端点从$r-1$移动到$r$时，需要加入所有以$r$作为编号较大端点的边，那么在处理一次询问时，只需要查询已加入的边中有多少条边编号较小端点大于等于$l$即可。
+		\end{block}
+	\end{frame}
+	\section{线段树}
+	\begin{frame}{线段树}
+		二叉树的每一个节点表示一个区间。根节点表示区间$[1,n]$，若一个节点表示的区间$[l,r]$满足$l<r$，令$mid=\lfloor\frac{l+r}{2}\rfloor$，则其左右儿子表示的区间分别为$[l,mid]$与$[mid+1,r]$。\\
+		
+		这样一个任意的区间$[l,r]\subseteq[1,n]$均可以拆分成线段树上$O(\log n)$个节点表示的区间。\\
+		
+		一般来讲需要维护的信息会满足结合律，这样在区间修改的时候可以使用懒标记维护。
+	\end{frame}
+	\begin{frame}{线段树常用技巧}
+		\begin{block}{标记永久化}
+			不下放标记以减小常数，要求运算额外满足交换律。
+		\end{block}
+		\pause
+		\begin{block}{动态开点}
+			假设需要处理的值域为$n$，操作数为$m$，那么线段树的空间复杂度可以做到$\min(O(n),O(m\log n))$。
+		\end{block}
+		\pause
+		\begin{block}{可持久化}
+			由于线段树上任意一次修改操作的复杂度均是严格$O(\log n)$，因此只需要建出所有被访问到的节点的复制即可。
+		\end{block}
+		\pause
+		\begin{block}{树套树}
+			即数据结构的嵌套，外层结构的每个位置上都存储了一个内层结构，可以实现多维度的查询，常见的嵌套方式有树状数组套线段树等。
+		\end{block}
+	\end{frame}
+	\begin{frame}{01 Trie}
+		01 Trie 是解决单数异或类问题（与一个数的最大、最小异或和）的一个利器。
+		
+		由于其可减性，可以使其可持久化以实现区间查询。
+		
+		为什么会放在线段树的目录下？因为01 Trie本质就是值域为$2^k$的动态开点线段树啊。
+	\end{frame}
+	\begin{frame}{FJOI2015 火星商店问题}
+		\begin{block}{description}
+			有$n$个初始均为空的集合和$m$次操作，每次操作为向某个集合内加入一个数$x$，或者查询最近的$d$次向编号在$[l,r]$内的集合加入的元素中，与$x$异或和的最大值。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n, m \le 10^5, 0 \le x < 2^{30}.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			以$n$为下标建一棵线段树，每个节点上开一棵01 Trie，为了处理加入时间的限制，可以对Trie的每个节点记录这个节点的最新更新时间，查询时根据这个更新时间来判断即可。
+		\end{block}
+	\end{frame}
+	\section{树上分治算法}
+	\subsection{树链剖分}
+	\begin{frame}{树链剖分（重链剖分）}
+		每个点选取子树大小最大的儿子作为重儿子，把树剖成若干条链。\\
+		
+		我们称非重儿子的儿子为轻儿子，由重儿子的父向边连成的链为重链。\\
+		
+		由于每从一个轻儿子跳到父亲时子树大小至少增大一倍，因而一个点到根的路径上经过的轻边不超过$\log n$，也即路径上重链条数是$O(\log n)$。\\
+		
+		任意两点间的路径可以被拆分成$O(\log n)$段重链前缀加上一段重链区间。
+	\end{frame}
+	\subsection{树上启发式合并}
+	\begin{frame}{树上启发式合并}
+		用于解决一些难以快速合并的子树信息询问。\\
+		
+		算法流程是当处理到点$u$时，先递归处理$u$的所有轻儿子并在回溯时清空已统计信息，再递归处理$u$的重儿子，再遍历所有轻儿子统计子树信息，此时便可以根据已统计的点$u$的子树信息处理一些询问。\\
+		
+		每条轻边会使其子树内的所有点被暴力遍历一次，而每个点的祖先轻边数量都不超过$\log n$，因此算法的总时间复杂度为$O(n\log n)$。
+	\end{frame}
+	\begin{frame}{codeforces741D Arpa's letter-marked tree and Mehrdad's Dokhtar-kosh paths}
+		\begin{block}{description}
+			给一棵$n$个点的树，每个点上有一个字符，字符集大小为$\sigma$。
+			
+			定义一条路径是好的当且仅当这条路径上的所有字符经过重新排列后可以形成回文串。求每个点子树内最长的好的路径的长度。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n \le 2\times 10^5, 1 \le \sigma \le 22.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			一条路径是好的当且仅当只有至多一种字符出现奇数次。状压，记$f_i$表示子树内到根路径上每种字符出现次数奇偶性状态为$i$的点的最大深度，加入一棵子树时，先利用桶中信息更新答案，再把整棵子树加入桶。每次更新答案时都有$\sigma +1$种可能的情况，因此时间复杂度为$O(n\sigma\log n)$。
+		\end{block}
+	\end{frame}
+	\subsection{长链剖分}
+	\begin{frame}{长链剖分}
+		每个点选取子树内最深深度最大的儿子作为长儿子。\\
+		
+		长链剖分可以解决一些与深度有关的信息的维护问题。
+	\end{frame}
+	\begin{frame}{例题}
+		\begin{block}{description}
+			给出一棵$n$个点的树，边带正整数权值，要求对于每个点$u$，求出在$u$子树中，经过点$u$的，边数在$[L_u,R_u]$之间的最长连。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n \le 5\times 10^5, 1 \le L_u \le R_u \le n.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			同一棵子树内，相同深度的节点中只需要保留到根权值和最大的那一个。
+			
+			每次合并两棵子树时，把较短的合并到较长的上去，这样合并的总量是$O(n)$的。（这是由于每合并一次就少一个点，否则总量会达到$O(n\log n)$。）
+			
+			对每条长链开一棵线段树维护，时间复杂度$O(n\log n)$。
+		\end{block}
+	\end{frame}
+	\subsection{点分治}
+	\begin{frame}{点分治}
+		选取树的重心作为分治重心，处理所有经过重心的信息，再将重心删除，递归处理剩下的所有子树。\\
+		
+		由重心的性质可以保证剩下的子树大小均不会超过原树的一半，因此每个点只会被处理不超过$\log n$次。\\
+		
+		根据点分治的过程可以建出一棵点分树，这棵树的树高是$O(\log n)$的。
+	\end{frame}
+	\begin{frame}{Wannafly挑战赛24E 旅行}
+		\begin{block}{description}
+			给一棵$n$个节点的树和一个常数$k$，树上的每个点都有一个整数权值$val_i\in[0,k)$，有$q$组询问，每组询问给出$x,y$，询问从树上$x$到$y$路径上的点集中选出一个子集其权值和是$k$的倍数的方案数，输出答案对$998244353$取模后的结果。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n \le 10^5, 1 \le k \le 50, 1 \le q \le 10^6.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			找到$x,y$在点分树上的最近公共祖先$z$，在$z$点处理这组询问。
+			
+			点分时，从每层点分重心出发对当前点分子树内的每个点求出到点分重心路径上所有$1+x^{val_i}$在模$x^k-1$意义下的循环卷积。
+			
+			两个循环卷积的乘法本需要$O(k^2)$的时间复杂度，但由于最终答案只需求一项，并且只需要一次乘法，因而总时间复杂度为$O((n\log n+q)k)$。
+		\end{block}
+	\end{frame}
+	\section{数据结构专题例题选讲}
+	\subsection{noi2016 区间}
+	\begin{frame}{noi2016 区间}
+		\begin{block}{description}
+			给出$n$个区间$[l_i,r_i]$和一个参数$m$，一个从这$n$个区间中选出$m$个区间的方案合法当且仅当这$m$个区间的交集非空。定义一种方案的代价为选出的$m$个区间中区间长度($r_i-l_i$)的极差，求代价最小的合法方案或判断不存在合法方案。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n \le 5\times 10^5, 1 \le m \le 2\times 10^5, 1 \le l_i \le r_i \le 10^9.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			按照区间长度排序，枚举选中的区间长度最小的区间（左端点），其对应的区间长度最大的区间（右端点）一定单调不降，双指针维护即可。需要使用线段树支持区间加和求全局$\max$。
+		\end{block}
+	\end{frame}
+	\subsection{sdoi2009 虔诚的墓主人}
+	\begin{frame}{sdoi2009 虔诚的墓主人}
+		\begin{block}{description}
+			一张$n\times m$的网格图上有$q$个关键点，对于一个非关键点，设其上下左右四个方向上的关键点数目分别为$a_1,a_2,a_3,a_4$，其权值为$\prod_{i=1}^4\binom{a_i}{k}$，其中$k$为给定常数。求网格图上所有非关键点的权值之和对$2^{31}$取模后的结果。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n, m \le 10^9, 1 \le q \le 10^5, 1 \le k \le 10.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			坐标离散，按照$x$顺序建立扫描线，维护每个纵坐标的$\binom{a_3}{k}\binom{a_4}{k}$系数，需要支持单点修改与区间求和操作。
+		\end{block}
+	\end{frame}
+	\subsection{ctsc2018 混合果汁}
+	\begin{frame}{ctsc2018 混合果汁}
+		\begin{block}{description}
+			有$n$种果汁，第$i$种果汁的美味度是$d_i$，每升价格是$p_i$，储量是$l_i$单位体积。
+			
+			有$m$个\includegraphics[width=0.4cm]{o_cxk.png}，第$j$个\includegraphics[width=0.4cm]{o_cxk.png}想要混合出一种总价格不超过$g_j$，总体积至少为$L_j$且参与混合的果汁的最小美味度最大的果汁。请帮每个\includegraphics[width=0.4cm]{o_cxk.png}求出这个最大的最小美味度。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n, m, d_i, p_i, l_i \le 10^5, 1 \le g_j, L_j \le 10^{18}.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			二分最小值，问题变成问所有美味度$\ge mid$的果汁能否混合出总价格不超过$g_j$，总体积至少为$L_j$的果汁，显然优先选单价低的果汁，那么只需要以单价为下标插入线段树后即可$O(\log n)$完成单次询问。
+			
+			考虑到美味度的限制，那么对美味度这一维建可持久化线段树就行了。
+		\end{block}
+	\end{frame}
+	\subsection{luogu2839 middle}
+	\begin{frame}{luogu2839 middle}
+		\begin{block}{description}
+			定义一个大小为$k$的数集的中位数为其中第$\lfloor\frac{k}{2}\rfloor$小的数。
+			
+			给一个长度为$n$的序列$\{a_i\}$，$q$次询问所有左端点在$[l_1,r_1]$，右端点在$[l_2,r_2]$的区间的最大中位数。强制在线。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n, q \le 10^5, 1 \le l_1 \le r_1 < l_2 \le r_2 \le n.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			解决中位数一类问题的常用手段是：二分一个数$mid$，将大于等于它的设为$1$，小于它的设为$-1$，判断区间和是否$\ge 0$。
+			
+			那么在二分了中位数后只需要判断$[l_1,r_1]$的最大后缀和$+(r_1,l_2)$的和$+[l_2,r_2]$的最大前缀和是否$\ge 0$。
+			
+			二分的$mid$只可能是原序列中出现过的数，从大到小枚举，每次把一个位置从$-1$改成$1$，可以使用可持久化线段树维护。
+		\end{block}
+	\end{frame}
+	\subsection{hdu5709 Claris Loves Painting}
+	\begin{frame}{hdu5709 Claris Loves Painting}
+		\begin{block}{description}
+			给一棵$n$点的树，每个节点上有一个颜色$c_i$，$q$次询问一个点的子树中与这个点距离不超过$d$的点的颜色有多少种。
+			
+			（强制在线）
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n, q \le 5\times 10^5.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			按深度离线，对每种颜色维护链并（单点加，相邻LCA减），需要实现一个数据结构支持单点加以及子树（区间）求和。
+			
+			（强制在线的话只需要把这个数据结构可持久化就行了）
+		\end{block}
+	\end{frame}
+	\subsection{codeforces765F Souvenirs}
+	\begin{frame}{codeforces765F Souvenirs}
+		\begin{block}{description}
+			给一个长度为$n$的序列$\{a_i\}$，$q$次询问区间$[l,r]$内两数差的最小值。
+		\end{block}
+		\begin{block}{constriction}
+			$1 \le n \le 10^5, 1 \le q \le 10^6, 0 \le a_i \le 10^9.$
+		\end{block}
+		\pause
+		\begin{block}{solution}
+			枚举$i$，考虑所有$j>i,a_j>a_i$的$(i,j)$。可能更新答案的$j$需要满足：
+			
+			$$a_{j_1}-a_i>2(a_{j_2}-a_i)>4(a_{j_3}-a_i)>...$$
+			
+			其中$j_x$按照下标顺序依次递增。不难发现这样的$j$只有$O(\log \max\{a_i\})$个，使用某种数据结构找出这些$j$并维护答案，可以做到$O((n\log \max\{a_i\}+q)\log n)$的复杂度。
+		\end{block}
+	\end{frame}
+	\section{The end}
+	\begin{frame}{}
+		\begin{center}
+			{\Huge 谢谢大家！}
+		\end{center}
+	\end{frame}
+\end{document}

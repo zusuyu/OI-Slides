@@ -429,7 +429,7 @@ for (int i = 2; i <= n; ++i) {
 	\begin{block}{solution}
 		先考虑对给定的$T$怎么求满足条件的$S$的数量。用$f(n)$表示长度为$n$且\obj{不包含}$T$作为子串的字符串数量，$g(n)$表示长度为$n$且\obj{只}在结尾包含$T$的字符串数量，有
 		\begin{align*}
-			\sigma f(n - 1) &= f(n) + g(n)\\
+			\sigma \cdot f(n - 1) &= f(n) + g(n)\\
 			f(n - m) &= \sum_{T \textrm{ has a border of length } i} g(n - m + i)
 		\end{align*}
 
@@ -873,7 +873,7 @@ void extend(char c) {
 \end{frame}
 \begin{frame}{2020ICPC Kunming F. Generating Strings\footnote{\tiny Codeforces Gym 里没找到，给个\href{https://ac.nowcoder.com/acm/contest/12548/F}{牛客}链接吧。}}
 	\begin{block}{description}
-		设字符集$\Sigma = \{\texttt{a}, \cdots, \texttt{z}\}$。给出$S \in \Sigma^*$，求$$\sum_{T \in \Sigma^n} \sum_{\substack{1 \le l \le r \le n \\ T_{[l, r]} \mathrm{\ is\ palindrome}}} \mathrm{OCC}_S(T_{[l, r]})$$
+		设字符集$\Sigma = \{\texttt{a}, \cdots, \texttt{z}\}$。给出$S \in \Sigma^*$，求$$\sum_{T \in \Sigma^n} \sum_{\substack{1 \le l \le r \le n \\ T_{[l, r]} \mathrm{\ is\ palindrome}}} |\mathrm{endpos}_S(T_{[l, r]})|$$
 
 		即枚举所有长为$n$的串$T$，求$T$的每个回文子串在$S$中的出现次数之和。
 
